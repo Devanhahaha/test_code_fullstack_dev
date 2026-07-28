@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClientController;
+use App\Http\Controllers\Api\ProjectController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('auth/register', [AuthController::class, 'register']);
@@ -12,4 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // route CRUD client
     Route::apiResource('clients', ClientController::class);
+
+    // route CRUD project
+    Route::apiResource('projects', ProjectController::class);
 });
