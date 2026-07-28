@@ -29,6 +29,8 @@ class TaskResource extends JsonResource
             }),
             'title' => $this->title,
             'description' => $this->description,
+            'category' => $this->category,
+            'estimated_hours' => $this->estimated_hours,
             'deadline' => $this->deadline,
             'status' => $this->status,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),

@@ -11,6 +11,8 @@ class Task extends Model
         'assignee_id',
         'title',
         'description',
+        'category',         
+        'estimated_hours',
         'deadline',
         'status',
     ];

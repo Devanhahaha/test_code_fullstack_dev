@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClientController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TimeLogController;
@@ -18,10 +19,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // route CRUD project
     Route::apiResource('projects', ProjectController::class);
+    // route generate task breakdown
+    Route::post('projects/{project}/tasks/generate', [ProjectController::class, 'generateTasks']);
 
     // route CRUD task
     Route::apiResource('tasks', TaskController::class);
+    // Endpoint untuk menyimpan sekaligus daftar task yang sudah di-approve dari AI
+    Route::post('projects/{project}/tasks/batch', [TaskController::class, 'storeBatch']);
 
     // route CRUD time log
     Route::apiResource('time-logs', TimeLogController::class);
+
+    // route dashboard summary
+    Route::get('dashboard/summary', [DashboardController::class, 'summary']);
 });

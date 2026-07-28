@@ -6,21 +6,40 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Task\StoreTaskRequest;
 use App\Http\Resources\Task\TaskResource;
 use App\Http\Resources\Task\UpdateTaskRequest;
+use App\Models\Project;
 use App\Models\Task;
+use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::with(['project.client', 'assignee'])->latest()->get();
+        $query = Task::with(['project.client', 'assignee']);
+
+        // filter berdasarkan project_id
+        if ($request->filled('project_id')) {
+            $query->where('project_id', $request->project_id);
+        }
+
+        // filter berdasarkan assignee_id
+        if ($request->filled('assignee_id')) {
+            $query->where('assignee_id', $request->assignee_id);
+        }
+
+        // filter berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $tasks = $query->latest()->get();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Data Task Berhasil Diambil',
-            'data' => TaskResource::collection($tasks), 
+            'data' => TaskResource::collection($tasks),
         ], 200);
     }
 
@@ -75,5 +94,38 @@ class TaskController extends Controller
             'status' => 'success',
             'message' => 'Task Berhasil Dihapus',
         ], 200);
+    }
+
+    public function storeBatch(Request $request, Project $project)
+    {
+        $request->validate([
+            'tasks' => 'required|array|min:1',
+            'tasks.*.title' => 'required|string|max:255',
+            'tasks.*.description' => 'nullable|string',
+            'tasks.*.category' => 'nullable|string',
+            'tasks.*.estimated_hours' => 'nullable|integer',
+            'tasks.*.assignee_id' => 'nullable|exists:users,id',
+            'tasks.*.deadline' => 'nullable|date',
+        ]);
+
+        $createdTasks = [];
+
+        foreach ($request->tasks as $taskData) {
+            $createdTasks[] = $project->tasks()->create([
+                'title' => $taskData['title'],
+                'description' => $taskData['description'] ?? null,
+                'category' => $taskData['category'] ?? null,
+                'estimated_hours' => $taskData['estimated_hours'] ?? null,
+                'assignee_id' => $taskData['assignee_id'] ?? null,
+                'status' => 'pending',
+                'deadline' => $taskData['deadline'] ?? $project->deadline,
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil menyimpan ' . count($createdTasks) . ' task ke database!',
+            'data' => $createdTasks
+        ], 201);
     }
 }
