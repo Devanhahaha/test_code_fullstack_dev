@@ -6,6 +6,7 @@ import AdminLayout from "../layouts/AdminLayout";
 // features
 import Login from "../pages/auth/login";
 import Dashboard from "../pages/admin/Dashboard";
+import Clients from "../pages/admin/Clients";
 
 export default function AppRoutes() {
     const auth = useContext(AuthContext);
@@ -24,6 +25,7 @@ export default function AppRoutes() {
                   Sementara di-comment sampai file Dashboard.jsx selesai kamu buat.
                 */}
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="client" element={<Clients />} />
             </Route>
         </Routes>
     )
