@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Validator;
 class AuthController extends Controller
 {
     // auth register
-    public function register (Request $request) {
+    public function register(Request $request)
+    {
 
         // validasi form request
         $validator = Validator::make($request->all(), [
@@ -52,7 +53,8 @@ class AuthController extends Controller
     }
 
     // auth login
-    public function login (Request $request) {
+    public function login(Request $request)
+    {
 
         // validasi form request
         $validator = Validator::make($request->all(), [
@@ -84,13 +86,16 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
         $role = $user->getRoleNames()->first();
 
-        // response jika berhasil
         return response()->json([
             'status' => 'success',
             'message' => 'Login Berhasil!',
             'data' => [
-                'user' => $user,
-                'role' => $role,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $role,
+                ],
                 'access_token' => $token,
                 'token_type' => 'Bearer',
             ]
@@ -98,7 +103,8 @@ class AuthController extends Controller
     }
 
     // auth logout
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         // hapus token user
         $request->user()->currentAccessToken()->delete();
 

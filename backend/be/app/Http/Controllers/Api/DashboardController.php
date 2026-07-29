@@ -20,14 +20,20 @@ class DashboardController extends Controller
             ->count();
 
         // Workload per Anggota (Jumlah task aktif yang sedang ditangani user role member)
-        $workload = User::role('member')->withCount(['assignedTasks as pending_tasks_count' => function ($query) {
+        $workload = User::role('member')->withCount(['tasks as pending_tasks_count' => function ($query) {
             $query->where('status', '!=', 'completed');
-        }])->get()->map(function ($user) {
+        }])
+        ->withSum(['tasks as pending_hours_sum' => function ($query) {
+            $query->where('status', '!=', 'completed');
+        }], 'estimated_hours')
+        ->get()->map(function ($user) {
             return [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'role' => $user->getRoleNames()->first(),
                 'pending_tasks_count' => $user->pending_tasks_count,
+                'pending_hours' => $user->pending_hours_sum ?? 0,
             ];
         });
 

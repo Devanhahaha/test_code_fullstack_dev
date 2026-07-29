@@ -1,10 +1,16 @@
-# web
+# React + Vite
 
-Dashboard admin/PM (bebas Next.js/React, atau Blade jika backend Laravel dijadikan monolith).
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-- `src/pages/` — halaman/route (login, dashboard, klien, proyek, task).
-- `src/components/` — komponen UI yang dipakai berulang (tabel, modal, form, card).
-- `src/services/` — pemanggilan API ke backend (auth, clients, projects, tasks).
-- `src/hooks/` — custom hooks (state auth, fetching data, dsb) bila memakai React.
+Currently, two official plugins are available:
 
-Lihat root `README.md` bagian "Tampilan Frontend" untuk daftar halaman yang wajib ada.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
