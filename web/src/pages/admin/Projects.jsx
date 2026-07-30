@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useMemo } from 'react';
 import { Plus, Search, Clock, CheckCircle2, AlertCircle, Sparkles, Trash2, Loader2, Edit2 } from 'lucide-react';
 import useProject from '../../hooks/project/useProject';
@@ -64,21 +65,27 @@ const Projects = () => {
 
     const handleSaveProject = (e) => {
         e.preventDefault();
+        const toastId = toast.loading('Menyimpan Data...');
+
         if (editingProject) {
             updateProject.mutate({ id: editingProject.id, data: projectForm }, {
                 onSuccess: handleCloseModal
             });
+            toast.success('Project Berhasil Diperbarui!', { id: toastId });
         } else {
             createProject.mutate(projectForm, {
                 onSuccess: handleCloseModal
             });
+            toast.success('Project Berhasil Ditambahkan!', { id: toastId });
         }
     };
 
     const handleDeleteProject = (id, name) => {
+        const toastId = toast.success('Menghapus Data...');
         if (window.confirm(`Are you sure you want to delete project: ${name}?`)) {
             deleteProject.mutate(id);
         }
+        toast.success(`Project ${name} berhasil dihapus!`, { id: toastId });
     };
 
     const openAiTaskGeneratorModal = (project) => {
@@ -97,13 +104,13 @@ const Projects = () => {
             { projectId, tasks: formattedTasks },
             {
                 onSuccess: () => {
-                    alert('Berhasil menyimpan semua task ke database!');
+                    toast.success('Berhasil menyimpan semua task ke database!');
                     setIsAiModalOpen(false);
                     setTargetProjectForAi(null);
                 },
                 onError: (error) => {
-                    console.error("Gagal menyimpan task:", error);
-                    alert("Terjadi kesalahan saat menyimpan task ke database.");
+                    toast.error(err?.response?.data?.message || "Gagal menyimpan task:", error);
+                    toast.error("Terjadi kesalahan saat menyimpan task ke database.");
                 }
             }
         );

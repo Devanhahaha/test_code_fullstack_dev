@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { Zap, AlertCircle, ChevronRight } from "lucide-react";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router";
@@ -36,6 +37,7 @@ const Login = () => {
                 }));
 
                 setIsAuthenticated(true);
+                toast.success('Berhasil Login! Selamat Datang.')
                 navigate('/admin/dashboard');
             },
             onError: (error) => {
@@ -48,7 +50,7 @@ const Login = () => {
                     setErrors(firstErrorMsg);
                 } 
                 else {
-                    setErrors("Terjadi kesalahan pada server. Coba lagi nanti.");
+                    toast.error("Terjadi kesalahan pada server. Coba lagi nanti.");
                 }
             }
         });

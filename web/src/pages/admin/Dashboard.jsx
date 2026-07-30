@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState } from 'react';
 import {
     Briefcase,
@@ -30,7 +31,7 @@ const Dashboard = () => {
             setSelectedProjectForAi(projects[0]);
             setIsAiModalOpen(true);
         } else {
-            alert("Silakan buat project terlebih dahulu sebelum menggunakan AI Task Generator.");
+            toast.error("Silakan buat project terlebih dahulu sebelum menggunakan AI Task Generator.");
         }
     };
 
@@ -41,13 +42,13 @@ const Dashboard = () => {
             { projectId, tasks: formattedTasks },
             {
                 onSuccess: () => {
-                    alert('Berhasil menyimpan semua task ke database!');
+                    toast.success('Berhasil menyimpan semua task ke database!');
                     setIsAiModalOpen(false);
                     setSelectedProjectForAi(null);
                 },
                 onError: (err) => {
                     console.error("Gagal menyimpan task:", err);
-                    alert("Terjadi kesalahan saat menyimpan task ke database.");
+                    toast.error("Terjadi kesalahan saat menyimpan task ke database.");
                 }
             }
         );

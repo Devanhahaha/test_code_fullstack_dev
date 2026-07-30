@@ -2,6 +2,7 @@ import { useContext } from "react";
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router';
 import { AuthContext } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 const useLogout = () => {
 
@@ -16,7 +17,7 @@ const useLogout = () => {
         Cookies.remove('user');
 
         setIsAuthenticated(false);
-
+        toast.success('Anda Berhasil Logout! Sampai Jumpa Kembali.')
         navigate('/');
     };
 

@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useMemo } from 'react';
 import { Plus, Search, Edit2, Trash2, Loader2, AlertCircle } from 'lucide-react';
 
@@ -45,24 +46,31 @@ const Clients = () => {
 
     const handleSaveClient = async (e) => {
         e.preventDefault();
+        const toastId = toast.loading('Menyimpan Data...');
+
         try {
             if (editingClient) {
                 await updateClient.mutateAsync({ id: editingClient.id, data: clientForm });
+                toast.success('Klien berhasil diperbarui!', { id: toastId });
             } else {
                 await createClient.mutateAsync(clientForm);
+                toast.success('Klien baru berhasil ditambahkan!', { id: toastId });
             }
             setIsModalOpen(false);
         } catch (err) {
-            console.error('Gagal menyimpan client:', err);
+            toast.error(err?.response?.data?.message || 'Gagal menyimpan klien.', { id: toastId });
         }
     };
 
     const handleDeleteClient = async (id, name) => {
         if (!window.confirm(`Are you sure you want to delete client: ${name}?`)) return;
+
+        const toastId = toast.loading('Menghapus Data...')
         try {
             await deleteClient.mutateAsync(id);
+            toast.success(`Klien ${name} berhasil dihapus!`, { id: toastId });
         } catch (err) {
-            console.error('Gagal menghapus client:', err);
+            toast.error(err?.response?.data?.message || 'Gagal menghapus klien.', { id: toastId });
         }
     };
 

@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useMemo } from 'react';
 import { Plus, Filter, Clock, Trash2, Loader2, CheckCircle2, AlertCircle, Pencil } from 'lucide-react';
 import TaskModal from '../../components/modals/TaskModal';
@@ -69,6 +70,7 @@ const Tasks = () => {
     // Handle Submit (Bisa Create, Bisa Update)
     const handleSubmitTask = (e) => {
         e.preventDefault();
+        const toastId = toast.loading('Menyimpan Data...')
 
         if (taskForm.id) {
             updateTask.mutate({ id: taskForm.id, data: taskForm }, {
@@ -77,6 +79,7 @@ const Tasks = () => {
                     setTaskForm(emptyForm);
                 }
             });
+            toast.success('Task berhasil diperbarui!', { id: toastId });
         } else {
             createTask.mutate(taskForm, {
                 onSuccess: () => {
@@ -84,13 +87,17 @@ const Tasks = () => {
                     setTaskForm(emptyForm);
                 }
             });
+            toast.success('Berhasil Menambahkan Task!', { id: toastId });
         }
     };
 
     const handleDeleteTask = (id, title) => {
+        const toastId = toast.loading('Menghapus Data...');
+
         if (window.confirm(`Are you sure you want to delete task: ${title}?`)) {
             deleteTask.mutate(id);
         }
+        toast.success(`Task ${title} berhasil dihapus!`, { id: toastId });
     };
 
     const filteredTasks = useMemo(() => {
