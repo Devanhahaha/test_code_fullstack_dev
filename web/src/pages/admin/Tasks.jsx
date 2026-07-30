@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Plus, Filter, Clock, Trash2, Loader2, CheckCircle2, AlertCircle, Pencil } from 'lucide-react';
 import TaskModal from '../../components/modals/TaskModal';
+import { useSearchParams } from 'react-router';
 
 import useTask from '../../hooks/task/useTask';
 import useTaskCreate from '../../hooks/task/useTaskCreate';
@@ -24,6 +25,9 @@ const emptyForm = {
 const Tasks = () => {
     const { data: tasks = [], isLoading: isLoadingTasks } = useTask();
 
+    const [searchParams] = useSearchParams();
+    const initialAssignee = searchParams.get('assignee') || 'All';
+
     const { data: projects = [] } = useProject();
     const { data: members = [] } = useMember();
 
@@ -36,7 +40,7 @@ const Tasks = () => {
 
     const [taskSearch, setTaskSearch] = useState('');
     const [taskProjectFilter, setTaskProjectFilter] = useState('All');
-    const [taskAssigneeFilter, setTaskAssigneeFilter] = useState('All');
+    const [taskAssigneeFilter, setTaskAssigneeFilter] = useState(initialAssignee);
     const [taskStatusFilter, setTaskStatusFilter] = useState('All');
     const [taskCategoryFilter, setTaskCategoryFilter] = useState('All');
 

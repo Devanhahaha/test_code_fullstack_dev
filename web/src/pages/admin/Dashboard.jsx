@@ -1,16 +1,57 @@
-import { 
-    Briefcase, 
-    AlertCircle, 
-    Users, 
-    Sparkles, 
-    ArrowUpRight, 
-    ShieldAlert, 
-    Loader2 
+import { useState } from 'react';
+import {
+    Briefcase,
+    AlertCircle,
+    Users,
+    Sparkles,
+    ArrowUpRight,
+    ShieldAlert,
+    Loader2
 } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import useDashboardSummary from '../../hooks/dashboard/useDashboardSummary';
+import useProject from '../../hooks/project/useProject';
+import AITaskGeneratorModal from '../../components/modals/AITaskGeneratorModal';
+import useTaskBatchCreate from '../../hooks/task/useTaskBatchCreate';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
+
     const { summaryData, loading, error } = useDashboardSummary();
+    const { data: projects = [] } = useProject();
+
+    const batchCreateTask = useTaskBatchCreate();
+
+    const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+    const [selectedProjectForAi, setSelectedProjectForAi] = useState(null);
+
+    const handleOpenAiModal = () => {
+        if (projects.length > 0) {
+            setSelectedProjectForAi(projects[0]);
+            setIsAiModalOpen(true);
+        } else {
+            alert("Silakan buat project terlebih dahulu sebelum menggunakan AI Task Generator.");
+        }
+    };
+
+    const handleSaveAiTasks = (projectId, approvedTasks) => {
+        const formattedTasks = approvedTasks.map(({ id, ...rest }) => rest);
+
+        batchCreateTask.mutate(
+            { projectId, tasks: formattedTasks },
+            {
+                onSuccess: () => {
+                    alert('Berhasil menyimpan semua task ke database!');
+                    setIsAiModalOpen(false);
+                    setSelectedProjectForAi(null);
+                },
+                onError: (err) => {
+                    console.error("Gagal menyimpan task:", err);
+                    alert("Terjadi kesalahan saat menyimpan task ke database.");
+                }
+            }
+        );
+    };
 
     // Handling saat data masih di-load
     if (loading) {
@@ -22,7 +63,7 @@ const Dashboard = () => {
         );
     }
 
-    // (Opsional) Handling jika API gagal/error
+    // Handling jika API gagal/error
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-rose-400">
@@ -41,8 +82,10 @@ const Dashboard = () => {
 
     return (
         <main className="p-4 md:p-8 space-y-8 max-w-7xl w-full mx-auto">
+            {/* Top Cards Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                
+
+                {/* Active Projects */}
                 <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-lg relative overflow-hidden group hover:border-slate-700 transition-all">
                     <div className="flex items-center justify-between">
                         <p className="text-xs font-medium text-slate-400">Active Projects</p>
@@ -62,6 +105,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
+                {/* Overdue Tasks */}
                 <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-lg relative overflow-hidden group hover:border-slate-700 transition-all">
                     <div className="flex items-center justify-between">
                         <p className="text-xs font-medium text-slate-400">Overdue Tasks</p>
@@ -78,7 +122,7 @@ const Dashboard = () => {
                             <ShieldAlert className="w-3.5 h-3.5" /> High Priority
                         </span>
                         <button
-                            onClick={() => console.log('Navigate to tasks filter overdue')}
+                            onClick={() => navigate('/admin/task?status=overdue')}
                             className="text-indigo-400 hover:underline text-[11px] cursor-pointer"
                         >
                             Resolve tasks &rarr;
@@ -86,6 +130,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
+                {/* Total Members */}
                 <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-lg relative overflow-hidden group hover:border-slate-700 transition-all">
                     <div className="flex items-center justify-between">
                         <p className="text-xs font-medium text-slate-400">Total Members</p>
@@ -104,7 +149,8 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="p-6 bg-gradient from-indigo-900/50 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+            {/* AI Automation Highlight (4. bg-gradient-to-r ditambahkan) */}
+            <div className="p-6 from-indigo-900/50 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
                         <Sparkles className="w-4 h-4" /> AI Automation Highlight
@@ -115,14 +161,15 @@ const Dashboard = () => {
                     </p>
                 </div>
                 <button
-                    onClick={() => console.log('Launch AI Task Generator')}
-                    className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-2 shrink-0 cursor-pointer"
+                    onClick={handleOpenAiModal}
+                    className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-2 shrink-0 cursor-pointer transition-colors"
                 >
                     <Sparkles className="w-4 h-4" />
                     <span>Launch AI Task Generator ✨</span>
                 </button>
             </div>
 
+            {/* Workload per Member Table */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                 <div className="p-5 border-b border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
@@ -154,7 +201,6 @@ const Dashboard = () => {
                                 </tr>
                             ) : (
                                 members.map((member) => {
-                                    // Hitung simulasi/persentase beban kerja sederhana berdasarkan pending tasks
                                     const pendingCount = member.pending_tasks_count ?? 0;
                                     const pendingHours = member.pending_hours ?? 0;
                                     const capacityPercent = Math.min(Math.round((pendingHours / STANDARD_CAPACITY_HOURS) * 100), 100);
@@ -162,7 +208,6 @@ const Dashboard = () => {
                                     return (
                                         <tr key={member.id} className="hover:bg-slate-800/40 transition-colors">
                                             <td className="py-4 px-6 font-medium text-slate-100 flex items-center gap-3">
-                                                {/* Fallback avatar generator menggunakan UI Avatars */}
                                                 <img
                                                     src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=1e293b&color=818cf8`}
                                                     alt={member.name}
@@ -178,11 +223,10 @@ const Dashboard = () => {
 
                                             <td className="py-4 px-6 text-center">
                                                 <span
-                                                    className={`inline-flex items-center justify-center px-2.5 py-1 rounded-full font-bold text-xs ${
-                                                        pendingCount > 2
+                                                    className={`inline-flex items-center justify-center px-2.5 py-1 rounded-full font-bold text-xs ${pendingCount > 2
                                                             ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                                                             : 'bg-slate-800 text-slate-300'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {pendingCount} Tasks
                                                 </span>
@@ -196,13 +240,12 @@ const Dashboard = () => {
                                                     </div>
                                                     <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
                                                         <div
-                                                            className={`h-full rounded-full transition-all duration-300 ${
-                                                                capacityPercent >= 80
+                                                            className={`h-full rounded-full transition-all duration-300 ${capacityPercent >= 80
                                                                     ? 'bg-rose-500'
                                                                     : capacityPercent >= 40
                                                                         ? 'bg-amber-500'
                                                                         : 'bg-emerald-500'
-                                                            }`}
+                                                                }`}
                                                             style={{ width: `${capacityPercent}%` }}
                                                         />
                                                     </div>
@@ -211,7 +254,7 @@ const Dashboard = () => {
 
                                             <td className="py-4 px-6 text-right">
                                                 <button
-                                                    onClick={() => console.log('View member tasks:', member.id)}
+                                                    onClick={() => navigate(`/admin/task?assignee=${member.name}`)}
                                                     className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-indigo-200 rounded-lg text-xs font-medium transition-colors cursor-pointer"
                                                 >
                                                     View Assigned Tasks &rarr;
@@ -225,6 +268,13 @@ const Dashboard = () => {
                     </table>
                 </div>
             </div>
+
+            <AITaskGeneratorModal
+                isOpen={isAiModalOpen}
+                onClose={() => setIsAiModalOpen(false)}
+                targetProjectForAi={selectedProjectForAi}
+                onSaveTasks={handleSaveAiTasks}
+            />
         </main>
     );
 };

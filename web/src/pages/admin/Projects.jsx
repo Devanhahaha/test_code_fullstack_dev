@@ -7,10 +7,14 @@ import useProjectDelete from '../../hooks/project/useProjectDelete';
 import ProjectModal from '../../components/modals/ProjectModal';
 import useClient from '../../hooks/client/useClient';
 import AITaskGeneratorModal from '../../components/modals/AITaskGeneratorModal';
+import useTaskBatchCreate from '../../hooks/task/useTaskBatchCreate';
 
 const emptyForm = { name: '', client_id: '', deadline: '', status: 'pending' };
 
 const Projects = () => {
+
+    const batchCreateTask = useTaskBatchCreate();
+
     const { data: projectsData, isLoading: isProjectsLoading } = useProject();
     const { data: clientsData, isLoading: isClientsLoading } = useClient();
 
@@ -87,13 +91,22 @@ const Projects = () => {
         setTargetProjectForAi(null);
     };
 
-    const handleSaveAiTasks = async (projectId, approvedTasks) => {
-        // Logika untuk menyimpan tugas yang telah disetujui (Approved) ke Backend
-        console.log(`Menyimpan tugas untuk Project ${projectId}:`, approvedTasks);
-        
-        // Contoh jika kamu membuat hook useTaskCreateBulk:
-        // bulkCreateTasksMutation.mutate({ projectId, tasks: approvedTasks });
-        // alert('Tugas berhasil dipecah dan disimpan!');
+    const handleSaveAiTasks = (projectId, approvedTasks) => {
+        const formattedTasks = approvedTasks.map(({ id, ...rest }) => rest);
+        batchCreateTask.mutate(
+            { projectId, tasks: formattedTasks },
+            {
+                onSuccess: () => {
+                    alert('Berhasil menyimpan semua task ke database!');
+                    setIsAiModalOpen(false);
+                    setTargetProjectForAi(null);
+                },
+                onError: (error) => {
+                    console.error("Gagal menyimpan task:", error);
+                    alert("Terjadi kesalahan saat menyimpan task ke database.");
+                }
+            }
+        );
     };
 
     if (isProjectsLoading) {

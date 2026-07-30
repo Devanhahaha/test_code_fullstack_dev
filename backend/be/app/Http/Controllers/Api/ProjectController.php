@@ -140,7 +140,8 @@ class ProjectController extends Controller
             }
 
             $jsonText = $response->json('candidates.0.content.parts.0.text');
-            $suggestedTasks = json_decode($jsonText, true);
+            $cleanJsonText = preg_replace('/^```json\s*|^\s*```|```$/m', '', trim($jsonText));
+            $suggestedTasks = json_decode($cleanJsonText, true);
 
             return response()->json([
                 'status' => 'success',

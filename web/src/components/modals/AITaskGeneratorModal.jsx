@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, X, Loader2, Plus, Trash2, Check } from 'lucide-react';
 import useAITaskGenerator from '../../hooks/task/useAITaskGenerator';
+import useMember from '../../hooks/member/useMember';
 
 const AITaskGeneratorModal = ({ isOpen, onClose, targetProjectForAi, onSaveTasks }) => {
     const [aiBrief, setAiBrief] = useState('');
     const [aiSource, setAiSource] = useState(null);
     const [suggestedTasks, setSuggestedTasks] = useState([]);
 
+    const { data: members = [], isLoading: isLoadingMembers } = useMember();
+
     const generateTasksMutation = useAITaskGenerator();
+
+    useEffect(() => {
+        if (targetProjectForAi) {
+            setAiBrief(targetProjectForAi.brief || targetProjectForAi.name || '');
+        }
+    }, [targetProjectForAi]);
 
     if (!isOpen || !targetProjectForAi) return null;
 
@@ -40,7 +49,8 @@ const AITaskGeneratorModal = ({ isOpen, onClose, targetProjectForAi, onSaveTasks
             id: Date.now(),
             title: '',
             category: 'Frontend',
-            estimated_hours: 1
+            estimated_hours: 1,
+            assignee_id: ''
         };
         setSuggestedTasks([...suggestedTasks, newTask]);
     };
@@ -57,7 +67,12 @@ const AITaskGeneratorModal = ({ isOpen, onClose, targetProjectForAi, onSaveTasks
 
     const handleApproveAndSaveTasks = () => {
         if (onSaveTasks) {
-            onSaveTasks(targetProjectForAi.id, suggestedTasks);
+            const payloadTasks = suggestedTasks.map(({ id, ...taskData }) => ({
+                ...taskData,
+                assignee_id: taskData.assignee_id ? Number(taskData.assignee_id) : null,
+            }));
+
+            onSaveTasks(targetProjectForAi.id, payloadTasks);
         }
         setAiBrief('');
         setSuggestedTasks([]);
@@ -142,7 +157,7 @@ const AITaskGeneratorModal = ({ isOpen, onClose, targetProjectForAi, onSaveTasks
                                 className="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1 cursor-pointer transition-colors"
                             >
                                 <Plus className="w-3.5 h-3.5" />
-                                <span>+ Add Task Manually</span>
+                                <span>Add Task Manually</span>
                             </button>
                         </div>
 
@@ -180,6 +195,26 @@ const AITaskGeneratorModal = ({ isOpen, onClose, targetProjectForAi, onSaveTasks
                                         </div>
 
                                         <div className="sm:col-span-2">
+                                            <label className="text-[10px] text-slate-500 block mb-0.5">Assignee</label>
+                                            <select
+                                                value={item.assignee_id || ''}
+                                                onChange={(e) => handleUpdateSuggestedTask(item.id, 'assignee_id', e.target.value)}
+                                                className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs font-medium text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                                            >
+                                                <option value="">Unassigned</option>
+                                                {isLoadingMembers ? (
+                                                    <option disabled>Loading...</option>
+                                                ) : (
+                                                    members?.map((member) => (
+                                                        <option key={member.id} value={member.id}>
+                                                            {member.name}
+                                                        </option>
+                                                    ))
+                                                )}
+                                            </select>
+                                        </div>
+
+                                        <div className="sm:col-span-2">
                                             <label className="block text-[10px] text-slate-500 mb-0.5">Est. Hours</label>
                                             <input
                                                 type="number"
@@ -208,7 +243,7 @@ const AITaskGeneratorModal = ({ isOpen, onClose, targetProjectForAi, onSaveTasks
                     </button>
                     <button
                         onClick={handleApproveAndSaveTasks}
-                        disabled={suggestedTasks.length === 0}
+                        disabled={isGenerating}
                         className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-1.5 cursor-pointer transition-colors"
                     >
                         <Check className="w-4 h-4" />
