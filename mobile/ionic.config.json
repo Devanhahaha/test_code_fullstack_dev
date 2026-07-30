@@ -1,0 +1,7 @@
+{
+  "name": "tempapp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
