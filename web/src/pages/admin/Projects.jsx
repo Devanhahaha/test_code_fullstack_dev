@@ -118,7 +118,7 @@ const Projects = () => {
                     className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-2 cursor-pointer"
                 >
                     <Plus className="w-4 h-4" />
-                    <span>+ New Project</span>
+                    <span>New Project</span>
                 </button>
             </div>
 

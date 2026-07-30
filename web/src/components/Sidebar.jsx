@@ -86,7 +86,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
                         </Link>
 
                         <Link
-                            to="/admin/tasks"
+                            to="/admin/task"
                             onClick={() => setIsMobileMenuOpen(false)}
                             className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${isActive('task')
                                     ? 'bg-blue-500 text-white shadow-md shadow-indigo-600/20'

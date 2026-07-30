@@ -112,8 +112,8 @@ class ProjectController extends Controller
                 . "  {\n"
                 . "    \"title\": \"Judul Task\",\n"
                 . "    \"description\": \"Deskripsi detail task\",\n"
-                . "    \"category\": \"Frontend|Backend|Design|QA|DevOps\",\n"
-                . "    \"estimatedHours\": 8\n"
+                . "    \"category\": \"Frontend|Backend|Design|QA\",\n"
+                . "    \"estimated_hours\": 8\n"
                 . "  }\n"
                 . "]";
 

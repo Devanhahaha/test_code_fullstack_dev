@@ -40,7 +40,7 @@ const AITaskGeneratorModal = ({ isOpen, onClose, targetProjectForAi, onSaveTasks
             id: Date.now(),
             title: '',
             category: 'Frontend',
-            estimatedHours: 1
+            estimated_hours: 1
         };
         setSuggestedTasks([...suggestedTasks, newTask]);
     };
@@ -184,8 +184,8 @@ const AITaskGeneratorModal = ({ isOpen, onClose, targetProjectForAi, onSaveTasks
                                             <input
                                                 type="number"
                                                 min={1} max={100}
-                                                value={item.estimatedHours}
-                                                onChange={(e) => handleUpdateSuggestedTask(item.id, 'estimatedHours', Number(e.target.value))}
+                                                value={item.estimated_hours}
+                                                onChange={(e) => handleUpdateSuggestedTask(item.id, 'estimated_hours', Number(e.target.value))}
                                                 className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs font-medium text-slate-100 focus:outline-none focus:border-indigo-500"
                                             />
                                         </div>

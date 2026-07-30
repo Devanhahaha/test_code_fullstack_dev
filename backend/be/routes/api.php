@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TimeLogController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('auth/register', [AuthController::class, 'register']);
@@ -32,4 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // route dashboard summary
     Route::get('dashboard/summary', [DashboardController::class, 'summary']);
+
+    // route get data member
+    Route::get('/users', [UserController::class, 'index']);
 });

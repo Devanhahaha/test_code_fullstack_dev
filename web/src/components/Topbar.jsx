@@ -8,9 +8,9 @@ const Topbar = ({ setIsMobileMenuOpen }) => {
 
   let pageTitle = 'Executive Dashboard';
 
-  if (location.pathname.includes('clients')) pageTitle = 'Client Portfolio Directory';
-  if (location.pathname.includes('projects')) pageTitle = 'Active Projects Hub';
-  if (location.pathname.includes('tasks')) pageTitle = 'Task Execution & Assignments';
+  if (location.pathname.includes('client')) pageTitle = 'Client Portfolio Directory';
+  if (location.pathname.includes('project')) pageTitle = 'Active Projects Hub';
+  if (location.pathname.includes('task')) pageTitle = 'Task Execution & Assignments';
 
   return (
     <header className="h-16 px-4 md:px-8 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md flex items-center justify-between sticky top-0 z-30">
@@ -33,9 +33,9 @@ const Topbar = ({ setIsMobileMenuOpen }) => {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="text-slate-400 hover:text-slate-200">
+        {/* <button className="text-slate-400 hover:text-slate-200">
            <Bell className="w-5 h-5" />
-        </button>
+        </button> */}
 
         <div className="flex items-center gap-3 pl-3 border-l border-slate-800">
           <img
