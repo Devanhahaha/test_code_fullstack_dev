@@ -80,7 +80,8 @@ class ProjectController extends Controller
     }
 
     // method generated task untuk gemini
-    public function generateTasks(Request $request, Project $project) {
+    public function generateTasks(Request $request, Project $project)
+    {
 
         $brief = $request->input('brief', $project->name);
 
@@ -103,15 +104,16 @@ class ProjectController extends Controller
         try {
 
             // Prompt yang ketat meminta format JSON Array murni
+            // Prompt yang ketat meminta format JSON Array murni dan sinkron dengan Frontend
             $prompt = "Kamu adalah Project Manager berpengalaman. Analisis brief proyek berikut dan buatkan breakdown task yang spesifik.\n\n"
                 . "Brief Proyek: {$brief}\n\n"
-                . "Kembalikan HANYA array JSON tanpa format markdown lain seperti ```json. Format JSON harus persis seperti ini:\n"
+                . "Kembalikan HANYA array JSON murni. Format JSON harus persis seperti ini (perhatikan penulisan huruf besar/kecil dan camelCase):\n"
                 . "[\n"
                 . "  {\n"
                 . "    \"title\": \"Judul Task\",\n"
                 . "    \"description\": \"Deskripsi detail task\",\n"
-                . "    \"category\": \"frontend|backend|design|QA\",\n"
-                . "    \"estimated_hours\": 8\n"
+                . "    \"category\": \"Frontend|Backend|Design|QA|DevOps\",\n"
+                . "    \"estimatedHours\": 8\n"
                 . "  }\n"
                 . "]";
 
@@ -146,7 +148,6 @@ class ProjectController extends Controller
                 'project_id' => $project->id,
                 'data' => $suggestedTasks
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

@@ -51,7 +51,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
                             to="/admin/dashboard"
                             onClick={() => setIsMobileMenuOpen(false)}
                             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${isActive('dashboard')
-                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                                    ? 'bg-blue-500 text-white shadow-md shadow-indigo-600/20'
                                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                                 }`}
                         >
@@ -62,8 +62,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
                         <Link
                             to="/admin/client"
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${isActive('clients')
-                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${isActive('client')
+                                    ? 'bg-blue-500 text-white shadow-md shadow-indigo-600/20'
                                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                                 }`}
                         >
@@ -72,10 +72,10 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
                         </Link>
 
                         <Link
-                            to="/admin/projects"
+                            to="/admin/project"
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${isActive('projects')
-                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${isActive('project')
+                                    ? 'bg-blue-500 text-white shadow-md shadow-indigo-600/20'
                                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                                 }`}
                         >
@@ -88,8 +88,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
                         <Link
                             to="/admin/tasks"
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${isActive('tasks')
-                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${isActive('task')
+                                    ? 'bg-blue-500 text-white shadow-md shadow-indigo-600/20'
                                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                                 }`}
                         >

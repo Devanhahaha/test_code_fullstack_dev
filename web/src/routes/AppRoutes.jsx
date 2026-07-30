@@ -7,6 +7,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import Login from "../pages/auth/login";
 import Dashboard from "../pages/admin/Dashboard";
 import Clients from "../pages/admin/Clients";
+import Projects from "../pages/admin/Projects";
 
 export default function AppRoutes() {
     const auth = useContext(AuthContext);
@@ -26,6 +27,7 @@ export default function AppRoutes() {
                 */}
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="client" element={<Clients />} />
+                <Route path="project" element={<Projects />} />
             </Route>
         </Routes>
     )

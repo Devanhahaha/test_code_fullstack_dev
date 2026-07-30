@@ -57,8 +57,8 @@ const Clients = () => {
         }
     };
 
-    const handleDeleteClient = async (id, company) => {
-        if (!window.confirm(`Hapus client "${company}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+    const handleDeleteClient = async (id, name) => {
+        if (!window.confirm(`Are you sure you want to delete client: ${name}?`)) return;
         try {
             await deleteClient.mutateAsync(id);
         } catch (err) {
