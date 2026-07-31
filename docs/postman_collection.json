@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "ProjectPulse API Documentation",
-    "description": "Dokumentasi API Endpoints untuk ProjectPulse (Laravel 11 Backend)",
+    "description": "Dokumentasi API Endpoints untuk ProjectPulse (Laravel 12 Backend)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
