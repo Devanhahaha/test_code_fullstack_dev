@@ -18,7 +18,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
-  
+
   const router = useIonRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,8 +31,7 @@ const Login: React.FC = () => {
 
     setLoading(true);
     try {
-      // Dummy endpoint hit
-      const response = await fetch('http://172.20.10.2:8000/api/auth/login', {
+      const response = await fetch('http://192.168.1.5:8000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,24 +42,30 @@ const Login: React.FC = () => {
 
       const data = await response.json();
 
+      console.log('Respon dari API Login:', data);
+
       if (!response.ok) {
         throw new Error(data.message || 'Login gagal, periksa kredensial Anda');
       }
 
+      const token = data.token || data.access_token || data.data?.token || data.data?.access_token;
+
+      if (token) {
+        localStorage.setItem('token', token);
+        console.log('Token BERHASIL disimpan ke localStorage:', token);
+      } else {
+        console.warn('⚠️ Login sukses tapi token TIDAK DITEMUKAN dalam respon JSON:', data);
+      }
+
       setToastMessage('Login berhasil');
       setShowToast(true);
-      
-      // Save token dummy
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
-      
-      // Navigate to dashboard/home after brief delay
+
       setTimeout(() => {
         router.push('/dashboard', 'forward', 'replace');
       }, 1000);
 
     } catch (error: any) {
+      console.error('Error Login:', error);
       setToastMessage(error.message);
       setShowToast(true);
     } finally {
@@ -118,7 +123,7 @@ const Login: React.FC = () => {
                 expand="block"
                 disabled={loading}
                 className="h-12 font-semibold text-base mt-8 tracking-wide"
-                style={{ 
+                style={{
                   '--background': '#4f46e5', /* indigo-600 */
                   '--background-hover': '#4338ca', /* indigo-700 */
                   '--border-radius': '0.75rem',

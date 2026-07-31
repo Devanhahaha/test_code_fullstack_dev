@@ -55,4 +55,8 @@ class User extends Authenticatable
     public function timeLogs() {
         return $this->hasMany(TimeLog::class);
     }
+
+    public function notification() {
+        return $this->hasMany(Notification::class);
+    }
 }

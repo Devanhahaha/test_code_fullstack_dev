@@ -14,9 +14,9 @@ import {
   IonButton,
   IonButtons
 } from '@ionic/react';
-import { 
-  timeOutline, 
-  checkmarkCircleOutline, 
+import {
+  timeOutline,
+  checkmarkCircleOutline,
   alertCircleOutline,
   logOutOutline,
   briefcaseOutline
@@ -41,26 +41,31 @@ const Dashboard: React.FC = () => {
 
   const fetchTasks = async () => {
     try {
-      // Dummy endpoint, assuming we get tasks assigned to the current user
-      // In a real app, you would pass the Bearer token in the header
       const token = localStorage.getItem('token');
-      const response = await fetch('http://172.20.10.2:8000/api/member/tasks', {
+      console.log('1. Token yang dipakai:', token);
+
+      const response = await fetch('http://192.168.1.5:8000/api/member/tasks', {
         headers: {
           'Accept': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
+      console.log('2. HTTP Status:', response.status); // Jika sukses, harusnya 200
+
       const data = await response.json();
+      console.log('3. Data dari Laravel:', data);
+
       if (response.ok && data.data) {
+        console.log('4. SUKSES! Data asli dimasukkan ke state.');
         setTasks(data.data);
       } else {
-        // Fallback dummy data if backend is not running or throws error
+        console.warn('GAGAL: Masuk blok ELSE (Status bukan 200 atau data.data kosong).', data);
         setTasks(getDummyTasks());
       }
     } catch (error) {
-      console.error('Error fetching tasks', error);
-      setTasks(getDummyTasks()); // Fallback for UI demonstration
+      console.error('GAGAL: Masuk blok CATCH (Network Error / Server Mati).', error);
+      setTasks(getDummyTasks());
     } finally {
       setLoading(false);
     }
@@ -149,7 +154,7 @@ const Dashboard: React.FC = () => {
 
       <IonContent style={{ '--background': '#0f172a' }}>
         <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
-          <IonRefresherContent 
+          <IonRefresherContent
             pullingIcon="lines"
             refreshingSpinner="crescent"
             pullingText="Pull to refresh"
@@ -157,7 +162,7 @@ const Dashboard: React.FC = () => {
         </IonRefresher>
 
         <div className="px-4 py-6 bg-slate-900 min-h-full">
-          
+
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white mb-1">Welcome back,</h2>
             <p className="text-slate-400">Here's your task breakdown for today.</p>
@@ -174,10 +179,10 @@ const Dashboard: React.FC = () => {
           ) : (
             <div className="space-y-4">
               {tasks.map(task => (
-                <div 
-                  key={task.id} 
+                <div
+                  key={task.id}
                   className="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-sm active:scale-[0.98] transition-transform"
-                  onClick={() => {/* Navigate to detail later */}}
+                  onClick={() => {/* Navigate to detail later */ }}
                 >
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-lg font-semibold text-white leading-tight pr-4">
@@ -185,13 +190,13 @@ const Dashboard: React.FC = () => {
                     </h3>
                     <div>{getStatusBadge(task.status)}</div>
                   </div>
-                  
+
                   {task.description && (
                     <p className="text-slate-400 text-sm mb-4 line-clamp-2">
                       {task.description}
                     </p>
                   )}
-                  
+
                   <div className="flex items-center justify-between text-xs font-medium border-t border-slate-700/50 pt-3">
                     {task.project ? (
                       <div className="flex items-center text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md">
@@ -201,16 +206,15 @@ const Dashboard: React.FC = () => {
                     ) : (
                       <div></div>
                     )}
-                    
+
                     {task.deadline && (
-                      <div className={`flex items-center ${
-                        new Date(task.deadline) < new Date() && task.status !== 'completed' 
-                          ? 'text-rose-400' 
+                      <div className={`flex items-center ${new Date(task.deadline) < new Date() && task.status !== 'completed'
+                          ? 'text-rose-400'
                           : 'text-slate-400'
-                      }`}>
+                        }`}>
                         <IonIcon icon={timeOutline} className="mr-1" />
-                        {new Date(task.deadline).toLocaleDateString('id-ID', { 
-                          day: 'numeric', month: 'short', year: 'numeric' 
+                        {new Date(task.deadline).toLocaleDateString('id-ID', {
+                          day: 'numeric', month: 'short', year: 'numeric'
                         })}
                       </div>
                     )}
