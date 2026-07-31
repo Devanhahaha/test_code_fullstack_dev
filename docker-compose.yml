@@ -5,19 +5,19 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-bilcode_projectpulse}
-      POSTGRES_USER: ${DB_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: project-pulse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: DeveloperMagang123
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
   backend:
     build:
-      context: ./backend
+      context: ./backend/be
     env_file:
-      - ./backend/.env
+      - ./backend/be/.env
     depends_on:
       - db
     ports:
@@ -27,11 +27,11 @@ services:
     build:
       context: ./web
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      VITE_API_URL: http://localhost:8000/api
     depends_on:
       - backend
     ports:
-      - "3000:3000"
+      - "5173:5173"
 
 volumes:
   db_data:

@@ -4,7 +4,7 @@ import { useContext } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 
 // features
-import Login from "../pages/auth/login";
+import Login from "../pages/auth/Login";
 import Dashboard from "../pages/admin/Dashboard";
 import Clients from "../pages/admin/Clients";
 import Projects from "../pages/admin/Projects";
