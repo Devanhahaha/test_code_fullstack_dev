@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TimeLog\StoreTimeLogRequest;
 use App\Http\Resources\TimeLog\TimeLogResource;
 use App\Http\Resources\TimeLog\UpdateTimeLogRequest;
+use App\Models\Task;
 use App\Models\TimeLog;
 
 class TimeLogController extends Controller
@@ -27,14 +28,21 @@ class TimeLogController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTimeLogRequest $request)
+    public function store(StoreTimeLogRequest $request, $taskId)
     {
-        $timeLog = TimeLog::create($request->validated());
+        $task = Task::where('id', $taskId)->firstOrFail();
+
+        $timeLog = TimeLog::create([
+            'task_id' => $task->id,
+            'user_id' => $request->user()->id,
+            'note' => $request->note,
+            'logged_hours' => $request->logged_hours,
+        ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Time Log Berhasil Ditambahkan',
-            'data' => new TimeLogResource($timeLog->load(['task', 'user']))
+            'message' => 'Time log berhasil ditambahkan',
+            'data' => $timeLog
         ], 201);
     }
 

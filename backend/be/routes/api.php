@@ -30,9 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Endpoint untuk menyimpan sekaligus daftar task yang sudah di-approve dari AI
     Route::post('projects/{project}/tasks/batch', [TaskController::class, 'storeBatch']);
 
-    // route CRUD time log
-    Route::apiResource('time-logs', TimeLogController::class);
-
     // route dashboard summary
     Route::get('dashboard/summary', [DashboardController::class, 'summary']);
 
@@ -46,4 +43,7 @@ Route::prefix('member')->middleware('auth:sanctum')->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+
+    Route::post('/tasks/{task}/time-logs', [TimeLogController::class, 'store']);
+    Route::get('/tasks/{task}/time-logs', [TimeLogController::class, 'index']);
 });

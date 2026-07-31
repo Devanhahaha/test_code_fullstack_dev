@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   IonPage,
   IonContent,
@@ -9,218 +9,262 @@ import {
   IonRefresherContent,
   IonSpinner,
   IonIcon,
-  IonBadge,
-  useIonRouter,
-  IonButton,
-  IonButtons
+  IonButtons,
 } from '@ionic/react';
 import {
   timeOutline,
   checkmarkCircleOutline,
   alertCircleOutline,
-  logOutOutline,
-  briefcaseOutline
+  briefcaseOutline,
+  hourglassOutline,
+  reloadOutline,
+  checkmarkDoneOutline,
+  layersOutline,
 } from 'ionicons/icons';
+import { apiGet, getUserInfo, TasksResponse, Task } from '../services/api';
+import NotificationBell from '../components/NotificationBell';
 
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  deadline: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  project?: {
-    id: number;
-    name: string;
-  };
-}
+type TaskStatus = 'pending' | 'in_progress' | 'completed';
+
+const statusConfig: Record<TaskStatus, { label: string; icon: string; color: string; bg: string }> = {
+  pending: { label: 'Pending', icon: hourglassOutline, color: '#94a3b8', bg: 'rgba(100,116,139,0.15)' },
+  in_progress: { label: 'In Progress', icon: reloadOutline, color: '#818cf8', bg: 'rgba(99,102,241,0.15)' },
+  completed: { label: 'Completed', icon: checkmarkDoneOutline, color: '#34d399', bg: 'rgba(52,211,153,0.15)' },
+};
+
+const StatusBadge: React.FC<{ status: TaskStatus }> = ({ status }) => {
+  const cfg = statusConfig[status] || statusConfig.pending;
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: '4px',
+      padding: '4px 10px', borderRadius: '999px',
+      fontSize: '11px', fontWeight: '600',
+      background: cfg.bg, color: cfg.color,
+      border: `1px solid ${cfg.color}33`,
+      whiteSpace: 'nowrap',
+    }}>
+      <IonIcon icon={cfg.icon} style={{ fontSize: '12px' }} />
+      {cfg.label}
+    </span>
+  );
+};
+
+const getGreeting = (): string => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Selamat Pagi';
+  if (hour < 15) return 'Selamat Siang';
+  if (hour < 18) return 'Selamat Sore';
+  return 'Selamat Malam';
+};
 
 const Dashboard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useIonRouter();
+  const user = getUserInfo();
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
+    setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      console.log('1. Token yang dipakai:', token);
-
-      const response = await fetch('http://192.168.1.5:8000/api/member/tasks', {
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      console.log('2. HTTP Status:', response.status); // Jika sukses, harusnya 200
-
-      const data = await response.json();
-      console.log('3. Data dari Laravel:', data);
-
-      if (response.ok && data.data) {
-        console.log('4. SUKSES! Data asli dimasukkan ke state.');
-        setTasks(data.data);
-      } else {
-        console.warn('GAGAL: Masuk blok ELSE (Status bukan 200 atau data.data kosong).', data);
-        setTasks(getDummyTasks());
-      }
-    } catch (error) {
-      console.error('GAGAL: Masuk blok CATCH (Network Error / Server Mati).', error);
-      setTasks(getDummyTasks());
+      const data = await apiGet<TasksResponse>('/member/tasks');
+      setTasks(data.data ?? []);
+    } catch {
+      setTasks([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchTasks();
   }, []);
+
+  useEffect(() => { fetchTasks(); }, [fetchTasks]);
 
   const doRefresh = async (event: CustomEvent) => {
     await fetchTasks();
     event.detail.complete();
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/login', 'forward', 'replace');
+  const stats = {
+    total: tasks.length,
+    pending: tasks.filter(t => t.status === 'pending').length,
+    in_progress: tasks.filter(t => t.status === 'in_progress').length,
+    completed: tasks.filter(t => t.status === 'completed').length,
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <IonIcon icon={checkmarkCircleOutline} />
-            Completed
-          </span>
-        );
-      case 'in_progress':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <IonIcon icon={timeOutline} />
-            In Progress
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-500/10 text-slate-400 border border-slate-500/20">
-            <IonIcon icon={alertCircleOutline} />
-            Pending
-          </span>
-        );
-    }
-  };
-
-  // Helper to generate dummy tasks if API fails
-  const getDummyTasks = (): Task[] => [
-    {
-      id: 1,
-      title: 'Fix Login Authentication Bug',
-      description: 'Resolve the issue where users cannot login with Google OAuth.',
-      deadline: '2026-08-01',
-      status: 'in_progress',
-      project: { id: 1, name: 'E-Commerce App' }
-    },
-    {
-      id: 2,
-      title: 'Design Dashboard UI',
-      description: 'Create a responsive dashboard layout using Tailwind CSS.',
-      deadline: '2026-08-05',
-      status: 'pending',
-      project: { id: 2, name: 'Internal Tool' }
-    },
-    {
-      id: 3,
-      title: 'Setup CI/CD Pipeline',
-      description: 'Configure GitHub Actions for automated deployment.',
-      deadline: '2026-07-29',
-      status: 'completed',
-      project: { id: 1, name: 'E-Commerce App' }
-    }
-  ];
+  const completionRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+  const recentTasks = tasks.slice(0, 3);
 
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
-        <IonToolbar style={{ '--background': '#0f172a', '--color': 'white' }}>
-          <IonTitle className="font-bold tracking-wide">My Tasks</IonTitle>
+        <IonToolbar style={{ '--background': '#0f172a', '--color': 'white', '--border-color': '#1e293b' }}>
+          <IonTitle style={{ fontWeight: '700', letterSpacing: '-0.02em', fontSize: '18px' }}>
+            🏠 Dashboard
+          </IonTitle>
           <IonButtons slot="end">
-            <IonButton onClick={handleLogout} className="text-slate-300 hover:text-white">
-              <IonIcon slot="icon-only" icon={logOutOutline} />
-            </IonButton>
+            <NotificationBell />
           </IonButtons>
         </IonToolbar>
       </IonHeader>
 
       <IonContent style={{ '--background': '#0f172a' }}>
         <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
-          <IonRefresherContent
-            pullingIcon="lines"
-            refreshingSpinner="crescent"
-            pullingText="Pull to refresh"
-          />
+          <IonRefresherContent pullingIcon="lines" refreshingSpinner="crescent" pullingText="Tarik untuk refresh" />
         </IonRefresher>
 
-        <div className="px-4 py-6 bg-slate-900 min-h-full">
+        <div style={{ padding: '16px', minHeight: '100%', background: '#0f172a', paddingBottom: '32px' }}>
 
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-white mb-1">Welcome back,</h2>
-            <p className="text-slate-400">Here's your task breakdown for today.</p>
+          {/* Greeting Card */}
+          <div style={{
+            background: 'linear-gradient(135deg, #312e81 0%, #4c1d95 50%, #1e1b4b 100%)',
+            borderRadius: '20px',
+            padding: '22px',
+            marginBottom: '20px',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 8px 32px rgba(79,70,229,0.25)',
+          }}>
+            {/* Decorative blobs */}
+            <div style={{
+              position: 'absolute', top: '-20px', right: '-20px',
+              width: '100px', height: '100px',
+              background: 'rgba(255,255,255,0.05)', borderRadius: '50%',
+            }} />
+            <div style={{
+              position: 'absolute', bottom: '-30px', left: '40%',
+              width: '80px', height: '80px',
+              background: 'rgba(255,255,255,0.04)', borderRadius: '50%',
+            }} />
+
+            <p style={{ color: '#a5b4fc', fontSize: '13px', fontWeight: '500', margin: '0 0 4px' }}>
+              {getGreeting()},
+            </p>
+            <h2 style={{ color: '#ffffff', fontSize: '22px', fontWeight: '800', margin: '0 0 14px', letterSpacing: '-0.02em' }}>
+              {user?.name ?? 'Member'} 👋
+            </h2>
+
+            {/* Progress Bar */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ color: '#c4b5fd', fontSize: '12px', fontWeight: '600' }}>
+                  Progress Keseluruhan
+                </span>
+                <span style={{ color: '#a5b4fc', fontSize: '12px', fontWeight: '700' }}>
+                  {completionRate}%
+                </span>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '999px', height: '8px', overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%',
+                  width: `${completionRate}%`,
+                  background: 'linear-gradient(90deg, #818cf8, #34d399)',
+                  borderRadius: '999px',
+                  transition: 'width 0.6s ease',
+                }} />
+              </div>
+              <p style={{ color: '#7c83b0', fontSize: '11px', marginTop: '6px', margin: '6px 0 0' }}>
+                {stats.completed} dari {stats.total} task selesai
+              </p>
+            </div>
+          </div>
+
+          {/* Stats Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '20px' }}>
+            {[
+              { label: 'Pending', value: stats.pending, color: '#94a3b8', bg: 'rgba(100,116,139,0.1)', icon: hourglassOutline },
+              { label: 'Dikerjakan', value: stats.in_progress, color: '#818cf8', bg: 'rgba(99,102,241,0.1)', icon: reloadOutline },
+              { label: 'Selesai', value: stats.completed, color: '#34d399', bg: 'rgba(52,211,153,0.1)', icon: checkmarkDoneOutline },
+            ].map((s, i) => (
+              <div key={i} style={{
+                background: s.bg,
+                border: `1px solid ${s.color}22`,
+                borderRadius: '16px',
+                padding: '14px 10px',
+                textAlign: 'center',
+              }}>
+                <IonIcon icon={s.icon} style={{ fontSize: '22px', color: s.color, marginBottom: '6px' }} />
+                <div style={{ fontSize: '24px', fontWeight: '800', color: s.color, lineHeight: '1' }}>{s.value}</div>
+                <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '600', letterSpacing: '0.04em', marginTop: '4px' }}>
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Recent Tasks */}
+          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ color: '#e2e8f0', fontWeight: '700', fontSize: '15px', margin: 0 }}>
+              <IonIcon icon={layersOutline} style={{ marginRight: '6px', color: '#818cf8', verticalAlign: 'middle' }} />
+              Task Terbaru
+            </h3>
+            <span style={{ color: '#475569', fontSize: '11px' }}>{stats.total} total</span>
           </div>
 
           {loading ? (
-            <div className="flex justify-center items-center h-48">
-              <IonSpinner name="crescent" className="text-indigo-500" />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '120px' }}>
+              <IonSpinner name="crescent" style={{ color: '#6366f1', width: '32px', height: '32px' }} />
             </div>
-          ) : tasks.length === 0 ? (
-            <div className="text-center py-12 bg-slate-800/50 rounded-2xl border border-slate-700/50">
-              <p className="text-slate-400">No tasks assigned to you right now.</p>
+          ) : recentTasks.length === 0 ? (
+            <div style={{
+              textAlign: 'center', padding: '32px 24px',
+              background: 'rgba(30,41,59,0.5)', borderRadius: '16px', border: '1px solid #1e293b',
+            }}>
+              <div style={{ fontSize: '40px', marginBottom: '10px' }}>🎯</div>
+              <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>Belum ada task yang di-assign</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {tasks.map(task => (
-                <div
-                  key={task.id}
-                  className="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-sm active:scale-[0.98] transition-transform"
-                  onClick={() => {/* Navigate to detail later */ }}
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-lg font-semibold text-white leading-tight pr-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {recentTasks.map(task => (
+                <div key={task.id} style={{
+                  background: '#1e293b',
+                  borderRadius: '14px',
+                  padding: '14px 16px',
+                  border: '1px solid #2d3f5a',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                    <h4 style={{
+                      color: '#e2e8f0', fontWeight: '600', fontSize: '14px',
+                      margin: 0, flex: 1, lineHeight: '1.4',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
                       {task.title}
-                    </h3>
-                    <div>{getStatusBadge(task.status)}</div>
+                    </h4>
+                    <StatusBadge status={task.status} />
                   </div>
 
-                  {task.description && (
-                    <p className="text-slate-400 text-sm mb-4 line-clamp-2">
-                      {task.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-between text-xs font-medium border-t border-slate-700/50 pt-3">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', alignItems: 'center' }}>
                     {task.project ? (
-                      <div className="flex items-center text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md">
-                        <IonIcon icon={briefcaseOutline} className="mr-1.5" />
-                        <span className="truncate max-w-30">{task.project.name}</span>
-                      </div>
-                    ) : (
-                      <div></div>
-                    )}
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        color: '#818cf8', fontSize: '11px',
+                        background: 'rgba(99,102,241,0.12)', padding: '2px 8px', borderRadius: '6px',
+                      }}>
+                        <IonIcon icon={briefcaseOutline} style={{ fontSize: '11px' }} />
+                        {task.project.name}
+                      </span>
+                    ) : <span />}
 
                     {task.deadline && (
-                      <div className={`flex items-center ${new Date(task.deadline) < new Date() && task.status !== 'completed'
-                          ? 'text-rose-400'
-                          : 'text-slate-400'
-                        }`}>
-                        <IonIcon icon={timeOutline} className="mr-1" />
+                      <span style={{
+                        display: 'flex', alignItems: 'center', gap: '4px',
+                        color: new Date(task.deadline) < new Date() && task.status !== 'completed'
+                          ? '#f87171' : '#64748b',
+                        fontSize: '11px',
+                      }}>
+                        <IonIcon icon={timeOutline} style={{ fontSize: '12px' }} />
                         {new Date(task.deadline).toLocaleDateString('id-ID', {
-                          day: 'numeric', month: 'short', year: 'numeric'
+                          day: 'numeric', month: 'short'
                         })}
-                      </div>
+                      </span>
                     )}
                   </div>
                 </div>
               ))}
+
+              {tasks.length > 3 && (
+                <div style={{ textAlign: 'center', paddingTop: '4px' }}>
+                  <span style={{ color: '#475569', fontSize: '12px' }}>
+                    + {tasks.length - 3} task lainnya — lihat di tab <strong style={{ color: '#818cf8' }}>My Tasks</strong>
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
