@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\Member\MemberTaskController;
+use App\Http\Controllers\Api\Member\NotificationController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TimeLogController;
@@ -42,4 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('member')->middleware('auth:sanctum')->group(function () {
     Route::get('/tasks', [MemberTaskController::class, 'index']);
     Route::put('/tasks/{task}', [MemberTaskController::class, 'update']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 });
