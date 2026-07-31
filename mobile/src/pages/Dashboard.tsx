@@ -44,7 +44,7 @@ const Dashboard: React.FC = () => {
       // Dummy endpoint, assuming we get tasks assigned to the current user
       // In a real app, you would pass the Bearer token in the header
       const token = localStorage.getItem('token');
-      const response = await fetch('http://172.20.10.2:8000/api/tasks', {
+      const response = await fetch('http://172.20.10.2:8000/api/member/tasks', {
         headers: {
           'Accept': 'application/json',
           'Authorization': `Bearer ${token}`
