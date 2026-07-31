@@ -6,7 +6,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: projectpulse.local   # TODO: sesuaikan, tambahkan ke /etc/hosts saat pakai minikube/kind
+    - host: projectpulse.local
       http:
         paths:
           - path: /api
@@ -22,4 +22,4 @@ spec:
               service:
                 name: projectpulse-web
                 port:
-                  number: 3000
+                  number: 5173

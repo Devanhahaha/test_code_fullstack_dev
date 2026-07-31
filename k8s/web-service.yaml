@@ -6,6 +6,6 @@ spec:
   selector:
     app: projectpulse-web
   ports:
-    - port: 3000
-      targetPort: 3000
+    - port: 5173
+      targetPort: 5173
   type: ClusterIP
