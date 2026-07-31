@@ -1,180 +1,122 @@
 # Take-Home Technical Test — Full Stack Developer
+## ProjectPulse — Platform Manajemen Klien & Proyek Internal
 
-**Bilcode Technology** · Seleksi Kandidat
-Studi Kasus: **ProjectPulse — Platform Manajemen Klien & Proyek Internal**
+[![Laravel 12](https://img.shields.io/badge/Backend-Laravel%2012-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
+[![React](https://img.shields.io/badge/Web-React%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org)
+[![Ionic](https://img.shields.io/badge/Mobile-Ionic%20React-3880FF?style=for-the-badge&logo=ionic)](https://ionicframework.com)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2016-4169E1?style=for-the-badge&logo=postgresql)](https://postgresql.org)
+[![Docker](https://img.shields.io/badge/Orchestration-Docker%20%26%20Kubernetes-2496ED?style=for-the-badge&logo=docker)](https://docker.com)
 
-> Dokumen ini adalah instruksi resmi pengerjaan technical test untuk kandidat yang **lolos ke tahap coding test**. Baca menyeluruh sebelum mulai. Setiap baris kode yang disubmit harus bisa kamu jelaskan saat wawancara teknis.
-
----
-
-## Ringkasan
-
-| | |
-|---|---|
-| **Posisi** | Full Stack Developer |
-| **Estimasi waktu** | 4 hari kerja (atur ritme sesuai deadline dengan recruiter) |
-| **Submission** | Repository Git (akses ke recruiter) — `backend/`, `web/`, `mobile/`, `k8s/` + `README.md` |
-| **Yang diuji** | Web dev · Mobile dev · Integrasi ML · Git/GitHub · Docker & Kubernetes |
-
-**Konteks:** Bilcode mengerjakan banyak proyek klien paralel. PM/admin butuh **web** untuk kelola klien, proyek, & task tim. Developer/desainer butuh **aplikasi mobile** untuk lihat task yang di-assign & lapor progres. Keduanya berbagi **satu backend API** yang sama, plus satu fitur berbasis **ML**.
+Repository ini berisi implementasi **ProjectPulse**, platform manajemen proyek internal yang menjembatani kebutuhan **Project Manager / Admin** (via Web Dashboard) dan **Team Member / Developer** (via Mobile App) dengan integrasi kecerdasan buatan Google Gemini untuk fitur *AI Task Breakdown*.
 
 ---
 
-## Kebebasan Teknis
+## 🚀 Fitur yang Diimplementasikan
 
-- **Backend:** Laravel **atau** Next.js (API routes/Route Handlers).
-- **Mobile:** pilih salah satu — **Ionic (paling diutamakan)** → React Native (setara) → **Flutter (poin preferensi terkecil)**. Semua tetap dinilai penuh dari sisi kualitas implementasi.
-- **Database:** bebas (MySQL/PostgreSQL/dsb).
-- **ML:** wajib pakai model/API pretrained (OpenAI/Gemini/Hugging Face). Yang dinilai **kualitas integrasi**, bukan akurasi/orisinalitas model.
-- **AI coding assistant** boleh dipakai, tapi kamu wajib paham & bisa menjelaskan setiap bagian kode.
+### 1. Web Admin (React + Vite + Tailwind CSS)
+* **Autentikasi & Otorisasi:** Login khusus Role Admin (PM).
+* **CRUD Klien & Proyek:** Kelola data klien, perusahaan, deadline, dan status proyek.
+* **AI Task Breakdown Generator:** Mengubah brief deskripsi proyek menjadi rekomendasi task terstruktur (kategori, estimasi jam, deskripsi) via Google Gemini API.
+* **Approve & Batch Save:** Admin dapat menambah, mengedit, atau menghapus saran AI sebelum disetujui dan disimpan masal ke database.
+* **Dashboard Analytics:** Ringkasan statistik proyek aktif, task overdue, dan distribusi workload anggota tim.
 
----
+### 2. Mobile App Member (Ionic React)
+* **Autentikasi Member:** Login khusus Role Member (Developer/Desainer).
+* **Task Management:** Daftar task pribadi dengan filter status (`pending`, `in_progress`, `completed`).
+* **Progress Tracking & Time Log:** Update status task dan pencatatan log jam kerja beserta catatan progres.
+* **In-App Notifications:** Alert & badge penugasan task baru dan pengingat deadline.
 
-## Requirement Functional — Tahap Inti (WAJIB)
-
-1. **Autentikasi** dengan role `admin` (PM, login via web) & `member` (developer/desainer, login via mobile).
-2. **Admin (web):**
-   - CRUD klien (nama, kontak, perusahaan)
-   - CRUD proyek (nama, klien terkait, deadline, status)
-   - CRUD task per proyek (judul, deskripsi, assignee, deadline, status)
-   - Dashboard ringkasan (proyek aktif, task overdue, workload per anggota)
-3. **Member (mobile):**
-   - Lihat task yang di-assign ke dirinya (filter status)
-   - Update status task: `todo → in_progress → review → done`
-   - Tambah catatan progres / log waktu kerja per task
-   - Lihat riwayat task selesai
-4. **Fitur ML — AI-assisted task breakdown:** saat admin buat proyek baru, admin menempel brief klien (teks bebas) → sistem memanggil LLM API untuk menyarankan daftar task + kategori (`frontend`/`backend`/`design`/`QA`) + estimasi effort kasar. Admin bisa **terima/edit/hapus/tambah** saran sebelum disimpan jadi task sungguhan.
-5. **Notifikasi in-app** di mobile saat member dapat task baru atau deadline mendekat (H-1).
-6. **API terdokumentasi** (Postman collection atau OpenAPI/Swagger, disertakan di repo).
-
-## Requirement Functional — Tahap Lanjutan (NILAI TAMBAH)
-
-- Laporan jam kerja per proyek/anggota, ekspor CSV/PDF.
-- Komentar/diskusi kolaboratif per task (multi-user + riwayat siapa/kapan).
-- Papan Kanban drag-and-drop antar status di web.
+### 3. Backend & Orchestration (Laravel 12 + PostgreSQL + K8s)
+* REST API terintegrasi dengan Laravel Sanctum Bearer Token.
+* Validasi input komprehensif & format error response seragam.
+* Containerization menggunakan Docker, Docker Compose, dan manifest Kubernetes (`k8s/`).
 
 ---
 
-## Requirement Non-Functional
+## 🛠️ Cara Menjalankan Aplikasi
 
-- Autentikasi **berbasis token** (JWT/Sanctum/Passport) — jangan andalkan session cookie lintas web-mobile.
-- **Validasi input di backend** (bukan hanya di frontend/mobile).
-- Format **response error API konsisten** (status code + pesan jelas) di semua endpoint, termasuk saat LLM API gagal.
-- **Fitur inti tetap jalan penuh** walau AI task breakdown sedang gagal/timeout (ML bersifat *assist*, bukan *blocking*).
-- Mobile bisa jalan di emulator/simulator — sertakan screenshot/video demo singkat di README.
-- **API key JANGAN di-hardcode** / ter-commit. Pakai `.env` (lokal) & `Secret`/`ConfigMap` K8s (cluster). Sertakan `.env.example` + `secret.example.yaml`.
-- Image Docker `backend` & `web` bisa di-`docker build` ulang dari source tanpa langkah manual di luar dokumentasi.
+### Option 1: Menggunakan Docker Compose (Rekomendasi Utama)
 
----
-
-## Containerization & Orchestration (WAJIB)
-
-- `backend` & `web` **wajib** punya `Dockerfile` masing-masing + bisa jalan bareng via `docker-compose` (dev lokal).
-- **Wajib** manifest **Kubernetes** minimal (Deployment, Service, ConfigMap/Secret, Ingress) untuk `backend` & `web`, deployable ke cluster lokal (minikube/kind/k3d). Tidak wajib deploy ke cloud production.
-
----
-
-## API Minimal
-
-```
-POST   /api/auth/login | /api/auth/register
-GET    /api/clients | POST /api/clients
-GET    /api/projects | POST /api/projects
-GET    /api/projects/:id
-POST   /api/projects/:id/tasks/generate    -> saran task dari brief klien (ML)
-GET    /api/projects/:id/tasks | POST /api/projects/:id/tasks
-PATCH  /api/tasks/:id                       -> update task (assignee, deadline — admin)
-PATCH  /api/tasks/:id/status                -> update status (member)
-POST   /api/tasks/:id/time-logs             -> catatan progres/jam kerja (member)
-GET    /api/tasks?assignee=&status=&project_id=
-GET    /api/dashboard/summary               -> ringkasan untuk admin
-```
+1. **Pastikan Docker Desktop sudah berjalan di komputer kamu.**
+2. **Setup File Environment Backend:**
+   ```bash
+   cp backend/be/.env.example backend/be/.env
+   ```
+   *(Opsional: Isi `GEMINI_API_KEY` di `backend/be/.env` jika ingin menguji fitur AI live).*
+3. **Jalankan Container:**
+   ```bash
+   docker-compose up --build -d
+   ```
+4. **Akses Layanan:**
+   * **Web Admin:** `http://localhost:5173`
+   * **Backend API:** `http://localhost:8000/api`
+   * **PostgreSQL Database:** `localhost:5433`
 
 ---
 
-## Tampilan Frontend
+### Option 2: Menjalankan Mobile App (Ionic React)
 
-**Web (admin/PM):** login · dashboard ringkasan · manajemen klien (CRUD) · manajemen proyek (tempel brief → edit saran AI → simpan task) · daftar & detail task per proyek dengan filter (assignee, status).
-
-**Mobile (member):** login · daftar task ke user (filter status) · detail task (update status, catatan progres/log waktu) · riwayat task selesai · notifikasi in-app (badge/list, push notification tidak wajib).
+1. Masuk ke direktori mobile:
+   ```bash
+   cd mobile
+   ```
+2. Install dependency dan jalankan server lokal:
+   ```bash
+   npm install
+   npx ionic serve
+   ```
+3. Aplikasi mobile akan terbuka di `http://localhost:8100`.
 
 ---
 
-## Data Awal (Seeder/Fixture)
+### Option 3: Deploy ke Cluster Kubernetes Lokal (k8s/)
 
-- 3–5 klien dummy
-- 3–5 proyek, masing-masing dengan beberapa task
-- Beberapa akun dummy role `admin` & `member`
+1. Salin file contoh secret K8s:
+   ```bash
+   cp k8s/secret.example.yaml k8s/secret.yaml
+   ```
+2. Jalankan perintah `kubectl` untuk menerapkan seluruh manifest:
+   ```bash
+   kubectl apply -f k8s/
+   ```
+3. Cek status pod & service:
+   ```bash
+   kubectl get pods,services,ingress
+   ```
 
 ---
 
-## Struktur Folder yang Direkomendasikan
+## 🔑 Kredensial Default (Seeder Data)
 
-```
-project-root/
-├── backend/
-│   ├── app/ (routes/controllers, models, services)
-│   ├── app/ml/            -> integrasi LLM API (task_breakdown_client.py|ts)
-│   ├── tests/
-│   ├── Dockerfile
-│   └── .env.example
-├── web/                   -> dashboard admin/PM (Next.js/React, atau blade)
-│   ├── src/{pages,components,services,hooks}
-│   └── Dockerfile
-├── mobile/                -> Ionic (diutamakan) / React Native / Flutter
-│   └── src/ atau lib/{screens,components,services}
-├── k8s/
-│   ├── backend-deployment.yaml
-│   ├── backend-service.yaml
-│   ├── web-deployment.yaml
-│   ├── web-service.yaml
-│   ├── configmap.yaml
-│   ├── secret.example.yaml
-│   └── ingress.yaml
-├── docker-compose.yml     -> dev lokal (wajib)
-└── docs/architecture.md
+* **Admin (Web PM):** `admin@bilcode.com` / `password123`
+* **Member (FullStack Developer):** `fullstack@bilcode.com` / `password123` (Login di Mobile)
+
+---
+
+## 📄 Dokumentasi API & Arsitektur
+
+* **Postman Collection:** Terletak di file **`docs/postman_collection.json`** (Lengkap dengan seluruh endpoint Auth, Users, CRUD Clients, CRUD Projects, AI Task Generator, Task Filters, & Member Endpoints).
+* **Architecture Decision Document:** Terletak di file **`docs/architecture.md`** (Menjelaskan keputusan teknis, diagram alur data, integrasi ML, serta strategi K8s).
+
+---
+
+## 📂 Struktur Direktori Proyek
+
+```text
+.
+├── backend/be/            # Backend REST API (Laravel 12, Sanctum, Gemini Client)
+├── web/                   # Dashboard Web Admin (React + Vite + Tailwind CSS)
+├── mobile/                # Mobile App Member (Ionic React)
+├── k8s/                   # Manifest Kubernetes (Deployment, Service, ConfigMap, Ingress)
+├── docs/                  # Dokumentasi Resmi Proyek
+│   ├── architecture.md    # Architecture Decision Document
+│   └── postman_collection.json # Full Postman API Collection
+└── docker-compose.yml     # Orchestration Development Lokal
 ```
 
 ---
 
-## Git/GitHub
+## 👨‍💻 Submission Candidate
 
-- Histori commit **granular & bermakna** (bukan satu commit besar "final code").
-- Pakai branch — minimal `main` + 1 feature branch, meski dikerjakan sendiri.
-
-## Isi README Submission (di root repo)
-
-Instruksi menjalankan ketiganya via `docker-compose up` (dev) **dan** `kubectl apply -f k8s/` (cluster lokal), cara akses service setelah deploy, cara jalankan mobile di emulator/simulator (+ screenshot/video jika device fisik tak ada), serta link portofolio pribadi (nilai tambah).
-
----
-
-## Kriteria Penilaian
-
-Setiap aspek dinilai **1–5** oleh reviewer × bobot → skor akhir **0–100**.
-
-| Aspek | Bobot |
-|---|---|
-| Web Development & Containerization/Orchestration (backend API, dashboard web, Docker, Kubernetes) | 30% |
-| Mobile Development (implementasi + kesesuaian stack) | 20% |
-| Integrasi ML & Error Handling/Resiliency | 25% |
-| Autentikasi, Role-based Access & Database Design | 15% |
-| Git/GitHub Practice & Dokumentasi | 10% |
-
-**Catatan alokasi:**
-- **Web/Orchestration (30%):** porsi signifikan khusus untuk kebenaran & kelengkapan Docker + manifest Kubernetes — bukan sekadar pelengkap.
-- **Mobile (20%):** ~15% kualitas implementasi (setara Ionic/RN/Flutter) + ~5% kesesuaian stack (penuh Ionic, sebagian RN, minimal Flutter).
-- **Git & Dokumentasi (10%):** terbagi rata antara histori commit/branching dan kelengkapan README + `docs/architecture.md`.
-
----
-
-## Bonus Challenge
-
-- CI/CD (GitHub Actions): lint/test → build & push image Docker tiap push ke `main`.
-- Helm chart sederhana sebagai pembungkus manifest K8s (menggantikan raw YAML di `k8s/`).
-- Horizontal Pod Autoscaler (HPA) pada Deployment `backend` + penjelasan trigger scaling.
-- Build APK (Android)/IPA siap-install untuk demo tanpa setup environment.
-- `docs/architecture.md` menjelaskan alasan pemilihan Laravel vs Next.js & Ionic vs RN vs Flutter untuk kasus ini.
-
----
-
-*Dokumen Rekrutmen Bilcode Technology — Rahasia. Pertanyaan seputar teknis/deadline: hubungi recruiter melalui kanal yang telah diberikan.*
+* **Aplikasi:** ProjectPulse — Full Stack Technical Assessment
+* **Perusahaan:** Bilcode Technology
